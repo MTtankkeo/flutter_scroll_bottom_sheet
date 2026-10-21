@@ -1,28 +1,33 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_scroll_bottom_sheet/flutter_bottom_sheet.dart';
 
-/// A simple utility class to manage bottom sheets throughout the app.
+/// A simple utility class to manage scroll bottom sheets throughout the app.
 ///
 /// Allows opening a bottom sheet with custom content, automatically applying
 /// any globally set configuration for consistent styling and behavior.
 ///
 /// Provides a method to close the currently open bottom sheet easily.
-class BottomSheet {
+class ScrollBottomSheet {
   /// Optional global configuration that applies to all bottom sheets opened
   /// via this utility, overriding default animation and style settings.
-  static BottomSheetConfig? config;
+  static ScrollBottomSheetConfig? config;
 
-  /// Opens a bottom sheet by pushing a [BottomSheetRoute] onto the navigation stack.
-  static Future<T?> open<T>(BuildContext context, Widget body) {
+  /// Opens a bottom sheet by pushing a [ScrollBottomSheetRoute]
+  /// onto the navigation stack.
+  static Future<T?> open<T>(
+    BuildContext context,
+    Widget body, {
+    ScrollBottomSheetConfig? config,
+  }) {
     return Navigator.push<T>(
       context,
-      BottomSheetRoute<T>(body: body, config: config),
+      ScrollBottomSheetRoute<T>(body: body, config: config ?? ScrollBottomSheet.config),
     );
   }
 
   /// Closes the currently displayed bottom sheet by popping its route.
   /// This assumes that a bottom sheet route is currently active.
-  static void close(BuildContext context) {
-    Navigator.pop(context);
+  static void close<T>(BuildContext context, [T? result]) {
+    Navigator.pop(context, result);
   }
 }

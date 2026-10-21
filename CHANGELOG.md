@@ -11,3 +11,11 @@
 
 ## 1.2.1
 - Updated BottomSheet `open` function to return a Future so that it can receive a result from the page.
+
+## 1.3.0
+- Renamed the public bottom sheet API to `ScrollBottomSheet`, including its route, configuration, builder, and widget types. Update references to the previous `BottomSheet` names.
+- Added an optional per-call `config` argument to `ScrollBottomSheet.open`.
+- Added an optional result to `ScrollBottomSheet.close`.
+- Moved the sheet above the on-screen keyboard while preserving its expansion state as the available height changes.
+- Raised the minimum supported versions to Dart 3.12 and Flutter 3.44, and updated `flutter_appbar` to 1.9.0.
+- Added a keyboard behavior widget test and a GitHub Actions test workflow.

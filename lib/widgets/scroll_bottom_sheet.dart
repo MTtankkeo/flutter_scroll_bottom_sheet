@@ -6,9 +6,9 @@ import 'package:flutter_appbar/flutter_appbar.dart';
 import 'package:flutter_scroll_bottom_sheet/flutter_bottom_sheet.dart';
 
 /// Wraps and renders the bottom sheet content as part of the custom
-/// bottom sheet system. Used internally by [BottomSheetRoute].
-class BottomSheetWidget extends StatefulWidget {
-  const BottomSheetWidget({
+/// bottom sheet system. Used internally by [ScrollBottomSheetRoute].
+class ScrollBottomSheetWidget extends StatefulWidget {
+  const ScrollBottomSheetWidget({
     super.key,
     required this.config,
     required this.route,
@@ -16,20 +16,19 @@ class BottomSheetWidget extends StatefulWidget {
   });
 
   /// Configuration for animation, layout, and appearance.
-  final BottomSheetConfig config;
+  final ScrollBottomSheetConfig config;
 
   /// The route associated with this bottom sheet.
-  final BottomSheetRoute route;
+  final ScrollBottomSheetRoute route;
 
   /// The content to display inside the bottom sheet.
   final Widget child;
 
   @override
-  State<BottomSheetWidget> createState() => BottomSheetWidgetState();
+  State<ScrollBottomSheetWidget> createState() => ScrollBottomSheetWidgetState();
 }
 
-class BottomSheetWidgetState extends State<BottomSheetWidget>
-    with TickerProviderStateMixin {
+class ScrollBottomSheetWidgetState extends State<ScrollBottomSheetWidget> with TickerProviderStateMixin {
   /// Controls the animation progress of the bottom sheet.
   AnimationController? _animation;
 
@@ -42,18 +41,17 @@ class BottomSheetWidgetState extends State<BottomSheetWidget>
 
   /// Returns the current animation value after applying the curve transformation.
   /// If no animation is active, returns the initial tween value.
-  double get animValue =>
-      _curve?.transform(_animation?.value ?? 0.0) ?? _tween.begin!;
+  double get animValue => _curve?.transform(_animation?.value ?? 0.0) ?? _tween.begin!;
 
   /// Absolute vertical expansion ratio of the bottom sheet
   /// based on the current animation value.
   ///
   /// Ranges from 0.0 to [maxFraction].
-  double get absFraction => _tween.transform(animValue);
+  double get absFraction => relFraction * maxFraction;
 
   /// Relative expansion ratio normalized to the range 0.0 to 1.0,
   /// based on the proportion of [absFraction] to [maxFraction].
-  double get relFraction => maxFraction == 0 ? 0 : absFraction / maxFraction;
+  double get relFraction => _tween.transform(animValue);
 
   /// Maximum vertical expansion ratio of the bottom sheet,
   /// relative to the screen height (0.0 to 1.0).
@@ -64,9 +62,20 @@ class BottomSheetWidgetState extends State<BottomSheetWidget>
   /// expansion, regardless of the content’s intrinsic size.
   double viewportHeight = 0.0;
 
+  void updateLayout(double sheetHeight, double availableHeight) {
+    final nextMaxFraction = sheetHeight / availableHeight;
+    if (maxFraction != nextMaxFraction) {
+      maxFraction = nextMaxFraction;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) setState(() {});
+      });
+    }
+    viewportHeight = availableHeight;
+  }
+
   void animateTo(double value, {Duration? duration, Curve? curve}) {
-    _tween.begin = absFraction;
-    _tween.end = value;
+    _tween.begin = relFraction;
+    _tween.end = maxFraction == 0 ? 0.0 : value / maxFraction;
     _curve = curve ?? widget.config.curve;
     _animation?.dispose();
     _animation = AnimationController(
@@ -79,8 +88,9 @@ class BottomSheetWidgetState extends State<BottomSheetWidget>
 
   void moveTo(double value) {
     setState(() {
-      _tween.begin = value;
-      _tween.end = value;
+      final fraction = maxFraction == 0 ? 0.0 : value / maxFraction;
+      _tween.begin = fraction;
+      _tween.end = fraction;
       _animation?.dispose();
       _animation = null;
     });
@@ -97,8 +107,7 @@ class BottomSheetWidgetState extends State<BottomSheetWidget>
     final double delta = available / viewportHeight;
 
     final double prevAbsFraction = absFraction;
-    final double newAbsFraction =
-        (prevAbsFraction - delta).clamp(0.0, maxFraction);
+    final double newAbsFraction = (prevAbsFraction - delta).clamp(0.0, maxFraction);
 
     // Calculate how much was actually consumed (in fraction and pixels).
     final double consumedFraction = prevAbsFraction - newAbsFraction;
@@ -127,9 +136,7 @@ class BottomSheetWidgetState extends State<BottomSheetWidget>
     final double snapFraction = findNearestSnap(absFraction, snapPoints);
 
     // Dismiss if snapped to collapsed, otherwise animate to target.
-    snapFraction == 0.0
-        ? widget.route.navigator?.maybePop()
-        : animateTo(snapFraction);
+    snapFraction == 0.0 ? widget.route.navigator?.maybePop() : animateTo(snapFraction);
 
     return false;
   }
@@ -182,22 +189,22 @@ class BottomSheetWidgetState extends State<BottomSheetWidget>
   @override
   Widget build(BuildContext context) {
     // The builder for the inner content of the bottom sheet.
-    final BottomSheetBuilder builder = widget.config.builder ?? _defaultBuilder;
+    final builder = widget.config.builder ?? _defaultBuilder;
 
     // The builder for the bottom sheet itself, including its styling and shape.
-    final BottomSheetBuilder sheetBuilder =
-        widget.config.sheetBuilder ?? _defaultSheetBuilder;
+    final sheetBuilder = widget.config.sheetBuilder ?? _defaultSheetBuilder;
 
     // Retrieves the current theme from the context.
-    final ThemeData theme = Theme.of(context);
+    final theme = Theme.of(context);
 
     // The modal barrier color, falling back to theme or semi-transparent black.
-    final Color barrierColor = widget.config.barrierColor ??
+    final barrierColor =
+        widget.config.barrierColor ??
         theme.bottomSheetTheme.modalBarrierColor ??
         Color.fromRGBO(0, 0, 0, 1).withAlpha(150);
 
     // The fade alpha based on the relative animation fraction.
-    final int barrierAlpha = ((barrierColor.a * 255) * relFraction).toInt();
+    final barrierAlpha = ((barrierColor.a * 255) * relFraction).toInt();
 
     return Stack(
       children: [
@@ -209,26 +216,36 @@ class BottomSheetWidgetState extends State<BottomSheetWidget>
 
         // Bottom sheet positioned and translated vertically based on animation state.
         Positioned.fill(
-          child: SafeArea(
-            bottom: false,
-            child: FractionalTranslation(
-              translation: Offset(0, 1 - absFraction),
-              child: NestedScrollConnection(
-                onPostScroll: _handleNestedScroll,
-                onPreScroll: _handleNestedScroll,
-                child: NotificationListener<ScrollEndNotification>(
-                  onNotification: _handleScrollEnd,
+          child: Padding(
+            padding: .only(
+              // Reserve the bottom area obscured by system UI,
+              // typically the on-screen keyboard.
+              //
+              // This is separate from the navigation bar safe-area
+              // padding and keeps the sheet above the keyboard.
+              bottom: MediaQuery.viewInsetsOf(context).bottom,
+            ),
+            child: SafeArea(
+              bottom: false,
+              child: FractionalTranslation(
+                translation: Offset(0, 1 - absFraction),
+                child: NestedScrollConnection(
+                  onPostScroll: _handleNestedScroll,
+                  onPreScroll: _handleNestedScroll,
+                  child: NotificationListener<ScrollEndNotification>(
+                    onNotification: _handleScrollEnd,
 
-                  // To allow minimum size to be maintained.
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: sheetBuilder(
-                      context,
-                      RenderBottomSheet(
-                        state: this,
-                        child: PrimaryScrollController(
-                          controller: NestedScrollController(),
-                          child: builder(context, widget.child),
+                    // To allow minimum size to be maintained.
+                    child: Align(
+                      alignment: .bottomCenter,
+                      child: sheetBuilder(
+                        context,
+                        RenderScrollBottomSheet(
+                          state: this,
+                          child: PrimaryScrollController(
+                            controller: NestedScrollController(),
+                            child: builder(context, widget.child),
+                          ),
                         ),
                       ),
                     ),
@@ -276,15 +293,15 @@ class BottomSheetWidgetState extends State<BottomSheetWidget>
 /// A widget that creates a render object for the bottom sheet,
 /// linking it to the bottom sheet's state for
 /// layout and animation control.
-class RenderBottomSheet extends SingleChildRenderObjectWidget {
-  const RenderBottomSheet({
+class RenderScrollBottomSheet extends SingleChildRenderObjectWidget {
+  const RenderScrollBottomSheet({
     super.key,
     required this.state,
     required super.child,
   });
 
   /// The state object managing animation and layout data.
-  final BottomSheetWidgetState state;
+  final ScrollBottomSheetWidgetState state;
 
   @override
   RenderObject createRenderObject(BuildContext context) {
@@ -293,11 +310,10 @@ class RenderBottomSheet extends SingleChildRenderObjectWidget {
 }
 
 /// RenderBox responsible for sizing and painting the bottom sheet content.
-class _BottomSheetRenderBox extends RenderBox
-    with RenderObjectWithChildMixin<RenderBox> {
+class _BottomSheetRenderBox extends RenderBox with RenderObjectWithChildMixin<RenderBox> {
   _BottomSheetRenderBox({required this.state});
 
-  final BottomSheetWidgetState state;
+  final ScrollBottomSheetWidgetState state;
 
   @override
   RenderBox get child => super.child!;
@@ -307,8 +323,7 @@ class _BottomSheetRenderBox extends RenderBox
     child.layout(constraints, parentUsesSize: true);
 
     // Define the maximum expansion ratio for the bottom sheet.
-    state.maxFraction = child.size.height / constraints.maxHeight;
-    state.viewportHeight = constraints.maxHeight;
+    state.updateLayout(child.size.height, constraints.maxHeight);
 
     // Set size to fill the parent's constraints.
     size = Size(

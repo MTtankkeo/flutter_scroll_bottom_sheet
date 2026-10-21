@@ -1,7 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_scroll_bottom_sheet/flutter_bottom_sheet.dart';
 
-/// A custom [PopupRoute] that presents a bottom sheet with
+/// A custom [PopupRoute] that presents a scroll bottom sheet with
 /// configurable animation, layout, and interaction behaviors.
 ///
 /// ### Example
@@ -11,10 +11,10 @@ import 'package:flutter_scroll_bottom_sheet/flutter_bottom_sheet.dart';
 ///   BottomSheetRoute(...)
 /// );
 /// ```
-class BottomSheetRoute<T> extends PopupRoute<T> {
-  BottomSheetRoute({
+class ScrollBottomSheetRoute<T> extends PopupRoute<T> {
+  ScrollBottomSheetRoute({
     required this.body,
-    BottomSheetConfig? config,
+    ScrollBottomSheetConfig? config,
   }) {
     _config = defaultConfig.coptyWith(config);
   }
@@ -23,13 +23,13 @@ class BottomSheetRoute<T> extends PopupRoute<T> {
   final Widget body;
 
   /// Internal config object resolved by merging with [defaultConfig].
-  late BottomSheetConfig _config;
+  late ScrollBottomSheetConfig _config;
 
   /// Called when a pop (dismiss) is requested.
   VoidCallback? onPopRequest;
 
   @override
-  Color? get barrierColor => Color.fromRGBO(0, 0, 0, 0);
+  Color? get barrierColor => .fromRGBO(0, 0, 0, 0);
 
   @override
   bool get barrierDismissible => true;
@@ -48,7 +48,11 @@ class BottomSheetRoute<T> extends PopupRoute<T> {
     Animation<double> animation,
     Animation<double> secondaryAnimation,
   ) {
-    return BottomSheetWidget(config: _config, route: this, child: body);
+    return ScrollBottomSheetWidget(
+      config: _config,
+      route: this,
+      child: body,
+    );
   }
 
   @override
@@ -59,10 +63,10 @@ class BottomSheetRoute<T> extends PopupRoute<T> {
   }
 
   /// Default config applied when no user config is provided.
-  static BottomSheetConfig get defaultConfig {
-    return BottomSheetConfig(
+  static ScrollBottomSheetConfig get defaultConfig {
+    return ScrollBottomSheetConfig(
       initialFraction: 0.5,
-      duration: Duration(milliseconds: 300),
+      duration: .new(milliseconds: 300),
       curve: Cubic(.4, 0, .4, 1),
     );
   }

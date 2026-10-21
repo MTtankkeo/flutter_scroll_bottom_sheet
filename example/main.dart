@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart' hide BottomSheet;
+import 'package:flutter/material.dart';
 import 'package:flutter_scroll_bottom_sheet/flutter_bottom_sheet.dart';
 
 void main() {
@@ -25,15 +25,16 @@ class TestView extends StatelessWidget {
     return Center(
       child: TextButton(
         onPressed: () {
-          BottomSheet.open(
-              context,
-              ListView.builder(
-                padding: EdgeInsets.all(20),
-                itemCount: 100,
-                itemBuilder: (context, index) {
-                  return Text("Hello, World!");
-                },
-              ));
+          ScrollBottomSheet.open(
+            context,
+            ListView.builder(
+              padding: .all(20),
+              itemCount: 100,
+              itemBuilder: (context, index) {
+                return Text("Hello, World!");
+              },
+            ),
+          );
         },
         child: Text("Oepn Bottom Sheet"),
       ),

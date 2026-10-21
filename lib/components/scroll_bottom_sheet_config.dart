@@ -1,19 +1,20 @@
 import 'package:flutter/widgets.dart';
 
-/// Signature for a function that builds a bottom sheet container
+/// Signature for a function that builds a scroll bottom sheet container
 /// using the given [context] and embedded [child] widget.
 ///
 /// Can be used to apply consistent styling, such as background color,
 /// shape, padding, or other layout-related customizations.
-typedef BottomSheetBuilder = Widget Function(
-  BuildContext context,
-  Widget child,
-);
+typedef ScrollBottomSheetBuilder =
+    Widget Function(
+      BuildContext context,
+      Widget child,
+    );
 
 /// Configuration options for customizing the appearance and behavior
 /// of a bottom sheet, including animation and layout properties.
-class BottomSheetConfig {
-  const BottomSheetConfig({
+class ScrollBottomSheetConfig {
+  const ScrollBottomSheetConfig({
     this.duration,
     this.curve,
     this.fadeInDuration,
@@ -57,16 +58,17 @@ class BottomSheetConfig {
 
   /// A builder that builds the card-style container inside the bottom
   /// sheet, applying consistent styling, shape, and background.
-  final BottomSheetBuilder? sheetBuilder;
+  final ScrollBottomSheetBuilder? sheetBuilder;
 
   /// A builder that builds the inner content of the bottom sheet.
-  final BottomSheetBuilder? builder;
+  final ScrollBottomSheetBuilder? builder;
 
   /// Returns a new config where any null values are replaced
   /// by the corresponding values from [other].
-  BottomSheetConfig coptyWith(BottomSheetConfig? other) {
+  ScrollBottomSheetConfig coptyWith(ScrollBottomSheetConfig? other) {
     if (other == null) return this;
-    return BottomSheetConfig(
+
+    return ScrollBottomSheetConfig(
       duration: other.duration ?? duration,
       curve: other.curve ?? curve,
       fadeInDuration: other.fadeInDuration ?? fadeInDuration,
