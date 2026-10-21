@@ -12,7 +12,7 @@ The GIF below may appear distorted or choppy due to compression.
 
 ### Open a sheet
 
-Use `ScrollBottomSheet.open` with the widget you want to display. A vertically scrollable child, such as `ListView`, lets scrolling expand and dismiss the sheet. Fixed-height content works too.
+Use `ScrollBottomSheet.open` with the widget you want to display. A vertically scrollable child, such as `ListView`, lets scrolling expand and dismiss the sheet.
 
 ```dart
 import 'package:flutter/widgets.dart';
