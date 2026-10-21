@@ -1,6 +1,6 @@
 name: flutter_scroll_bottom_sheet
-description: This package provides a flexible bottom sheet, built on top of the flutter_appbar package, that syncs with scroll events instead of relying only on gestures.
-version: 1.3.0
+description: A flexible bottom sheet built on flutter_nested_scroll that coordinates smoothly with scroll events.
+version: 1.3.1
 repository: https://github.com/MTtankkeo/flutter_scroll_bottom_sheet
 
 environment:
@@ -10,9 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
-  # Provides NestedScrollConnection and NestedScrollController for nested scrolling.
-  flutter_appbar: ^1.9.0
+  flutter_nested_scroll: ^1.0.0+1
 
 dev_dependencies:
   flutter_test:

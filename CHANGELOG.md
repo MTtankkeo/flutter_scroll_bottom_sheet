@@ -19,3 +19,6 @@
 - Moved the sheet above the on-screen keyboard while preserving its expansion state as the available height changes.
 - Raised the minimum supported versions to Dart 3.12 and Flutter 3.44, and updated `flutter_appbar` to 1.9.0.
 - Added a keyboard behavior widget test and a GitHub Actions test workflow.
+
+## 1.3.1
+- Replaced the `flutter_appbar` dependency with `flutter_nested_scroll` for nested scroll coordination.

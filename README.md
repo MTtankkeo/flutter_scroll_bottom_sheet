@@ -1,6 +1,6 @@
 # Introduction
 
-This package provides a flexible bottom sheet, built on top of the flutter_appbar package, that syncs with scroll events instead of relying only on gestures.
+This package provides a flexible bottom sheet built on flutter_nested_scroll that coordinates smoothly with scroll events.
 
 ## Preview
 
