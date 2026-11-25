@@ -22,3 +22,9 @@
 
 ## 1.3.1
 - Replaced the `flutter_appbar` dependency with `flutter_nested_scroll` for nested scroll coordination.
+
+## 1.4.0
+- Migrated Material components to `material_ui`.
+- Moved implementation files to `lib/src`.
+- Updated `flutter_nested_scroll` to ^1.2.0.
+- Raised the minimum supported versions to Dart 3.13 and Flutter 3.47.

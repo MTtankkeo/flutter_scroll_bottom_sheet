@@ -5,11 +5,10 @@ import 'package:flutter/widgets.dart';
 ///
 /// Can be used to apply consistent styling, such as background color,
 /// shape, padding, or other layout-related customizations.
-typedef ScrollBottomSheetBuilder =
-    Widget Function(
-      BuildContext context,
-      Widget child,
-    );
+typedef ScrollBottomSheetBuilder = Widget Function(
+  BuildContext context,
+  Widget child,
+);
 
 /// Configuration options for customizing the appearance and behavior
 /// of a bottom sheet, including animation and layout properties.

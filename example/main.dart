@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_scroll_bottom_sheet/flutter_bottom_sheet.dart';
 
 void main() {
@@ -10,15 +10,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(body: SafeArea(child: TestView())),
+      home: Scaffold(
+        body: SafeArea(
+          child: Example(),
+        ),
+      ),
     );
   }
 }
 
-class TestView extends StatelessWidget {
-  const TestView({super.key});
+class Example extends StatelessWidget {
+  const Example({super.key});
 
   @override
   Widget build(BuildContext context) {
